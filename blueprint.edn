@@ -1,0 +1,12 @@
+{:itonami.blueprint/id "cloud-itonami-1062"
+ :itonami.blueprint/name "Starches and Starch Products Coordination"
+ :itonami.blueprint/isic-rev5 "1062"
+ :itonami.blueprint/domain :food/starches-and-starch-products
+ :itonami.blueprint/license "AGPL-3.0-or-later"
+ :itonami.blueprint/social-impact [:food-security :food-safety :fair-labor]
+ :itonami.blueprint/governor :starchops-governor
+ :itonami.blueprint/robotics true
+ :itonami.blueprint/required-technologies [:robotics :identity :forms :dmn :bpmn :audit-ledger :cae]
+ :itonami.blueprint/optional-technologies [:optimization :telemetry]
+ :itonami.blueprint/status :public-oss
+ :itonami.blueprint/maturity :blueprint}
