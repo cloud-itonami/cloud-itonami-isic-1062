@@ -1,5 +1,20 @@
 {:paths ["src"]
- :deps {}
+ ;; jp-go-dds supplies the デジタル庁デザインシステム skin used by the
+ ;; build-time operator console (`starchops.render-html`). langgraph brings
+ ;; langchain transitively (both zero-/single-dep, all .cljc). It lives in the
+ ;; kotoba-lang org of this workspace; this repo is standalone (forkable
+ ;; outside the workspace), so the :local/root path only resolves inside the
+ ;; monorepo checkout -- a standalone fork should override it with git
+ ;; coordinates. Note that this repo's own actor
+ ;; (`starchops.operation`/`starchops.governor`) is a pure-function driver and
+ ;; does NOT depend on langgraph today; the dep is declared for parity with the
+ ;; rest of the cloud-itonami fleet and for the StateGraph integration
+ ;; `starchops.sim` still lists as TODO.
+ :deps {io.github.kotoba-lang/jp-go-digital-design-system
+        {:git/url "https://github.com/kotoba-lang/jp-go-digital-design-system"
+         :git/sha "83db99546eabc53613ae826ea41d1533a3c574af"}
+        io.github.kotoba-lang/langgraph
+        {:local/root "../../kotoba-lang/langgraph"}}
  :aliases
  {:dev {:override-deps
         {io.github.kotoba-lang/langchain
@@ -7,6 +22,10 @@
         io.github.kotoba-lang/langgraph
         {:local/root "../../kotoba-lang/langgraph"}}}
   :run {:main-opts ["-m" "starchops.sim"]}
+  ;; clojure -M:dev:render-html [out-file] -> regenerate
+  ;; docs/samples/operator-console.html through the REAL actor stack
+  ;; (flagship checklist item 2).
+  :render-html {:main-opts ["-m" "starchops.render-html"]}
   :test {:extra-paths ["test"]
          :extra-deps {io.github.cognitect-labs/test-runner
                       {:git/tag "v0.5.1" :git/sha "dfb30dd"}}
