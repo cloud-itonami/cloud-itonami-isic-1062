@@ -475,6 +475,53 @@
            (lifecycle-cell b)
            (status-cell ledger id)))))
 
+;; --- probing the Governor for the thresholds it applies inline ---
+
+(def ^:private probe-base
+  "`batch-001`'s fully-clean seed record, reused as the base for the
+  threshold probes below. `:detection-equipment-last-calibration-date` is
+  deliberately absent: the Governor's calibration check is guarded on that
+  key being present, so leaving it off keeps every probe free of a clock
+  read (and therefore keeps `render` a pure function of the store)."
+  (let [b (first (filter #(= "batch-001" (:id %)) seed-batches))]
+    (-> b
+        (dissoc :id :missing-evidence :calibration-age-days)
+        (assoc :processed? false
+               :evidence-checklist (evidence-for (:jurisdiction b))))))
+
+(defn- governor-flags?
+  "Ask the REAL `starchops.governor/check` whether it emits `rule` for a
+  batch that is `probe-base` with `k` overridden to `v`.
+
+  Two of the Governor's thresholds -- the sanitation-score minimum and the
+  weight-variance maximum -- are passed as inline literal arguments at
+  their call sites (`(registry/sanitation-score-insufficient? .. 75)`,
+  `(registry/weight-variance-excessive? .. 50)`) rather than exposed as
+  named vars this namespace could read. Restating those constants here
+  would put a number on the page that no longer traces to the Governor if
+  the Governor changed. Probing it instead means the page reports the
+  boundary the Governor actually enforces."
+  [k v rule]
+  (let [verdict (governor/check
+                 {:op :log-production-batch :subject "probe"}
+                 {:actor-id actor-id}
+                 {:cites (cites "probe") :effect :propose
+                  :value {:jurisdiction (:jurisdiction probe-base)} :confidence 0.9}
+                 {:batches {"probe" (assoc probe-base k v)} :facts []})]
+    (boolean (some #(= rule (:rule %)) (:violations verdict)))))
+
+(def ^:private measured-thresholds
+  "The sanitation-score minimum and weight-variance maximum the Governor
+  actually enforces, found by scanning `governor-flags?` for the boundary
+  rather than restating the literals at the Governor's call sites. Pure:
+  no clock, no I/O (see `probe-base`)."
+  {:sanitation-min
+   (first (remove #(governor-flags? :sanitation-score % :sanitation-score-insufficient)
+                  (range 0 101)))
+   :weight-max
+   (last (take-while #(not (governor-flags? :weight-variance-grams % :weight-variance-excessive))
+                     (range 0 501)))})
+
 ;; --- inspection actuals, re-verified through this repo's own predicates ---
 
 (defn- inspection-rows [db]
@@ -492,9 +539,13 @@
          (str "<span class=\"num\">" (esc (:microbial-load-cfu b)) "</span> "
               (verdict-span (facts/microbial-load-in-range? (:microbial-load-cfu b) p) "OK" "超過"))
          (str "<span class=\"num\">" (esc (:sanitation-score b)) "</span> "
-              (verdict-span (>= (:sanitation-score b) 75) "OK" "不足"))
+              (verdict-span (not (governor-flags? :sanitation-score (:sanitation-score b)
+                                                  :sanitation-score-insufficient))
+                            "OK" "不足"))
          (str "<span class=\"num\">" (esc (:weight-variance-grams b)) "</span> "
-              (verdict-span (<= (:weight-variance-grams b) 50) "OK" "超過"))
+              (verdict-span (not (governor-flags? :weight-variance-grams (:weight-variance-grams b)
+                                                  :weight-variance-excessive))
+                            "OK" "超過"))
          (if (:foreign-material-detected? b)
            "<span class=\"critical\">検出</span>"
            "<span class=\"ok\">なし</span>")
@@ -725,7 +776,16 @@
            "<code>granulation-in-range?</code> / <code>sulfite-residue-in-range?</code> / "
            "<code>microbial-load-in-range?</code> を生成時に呼び直した結果 —— "
            "advisor の自己申告ではない。校正は 60 日間隔（"
-           "<code>registry/detection-equipment-calibration-overdue?</code>）。")
+           "<code>registry/detection-equipment-calibration-overdue?</code>）。"
+           "衛生スコアと重量分散のしきい値は Governor が呼び出し側の"
+           "リテラル引数として持っており読み取れる var が無いため、"
+           "<code>governor/check</code> を境界まで走査して実測した —— "
+           "衛生スコア最低 <span class=\"num\">"
+           (esc (:sanitation-min measured-thresholds))
+           "</span>、重量分散最大 <span class=\"num\">"
+           (esc (:weight-max measured-thresholds))
+           "</span> g。この 2 列の OK/NG も定数比較ではなく "
+           "<code>governor/check</code> の実回答。")
       (table ["バッチ" "水分 %" "純度 %" "粒度 μm" "SO2 ppm" "微生物 CFU/g"
               "衛生スコア" "重量分散 g" "異物" "校正経過" "必要書類"]
              (inspection-rows db)))

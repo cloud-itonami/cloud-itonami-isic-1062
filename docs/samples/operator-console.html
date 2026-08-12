@@ -2503,7 +2503,7 @@ img,svg { max-width: 100%; height: auto; }</style></head><body>
   </section>
   <section class="card">
     <h2>検査実測値と独立再検証</h2>
-    <p class="muted">各列の OK/NG は <code>starchops.facts</code> の <code>moisture-in-range?</code> / <code>purity-in-range?</code> / <code>granulation-in-range?</code> / <code>sulfite-residue-in-range?</code> / <code>microbial-load-in-range?</code> を生成時に呼び直した結果 —— advisor の自己申告ではない。校正は 60 日間隔（<code>registry/detection-equipment-calibration-overdue?</code>）。</p>
+    <p class="muted">各列の OK/NG は <code>starchops.facts</code> の <code>moisture-in-range?</code> / <code>purity-in-range?</code> / <code>granulation-in-range?</code> / <code>sulfite-residue-in-range?</code> / <code>microbial-load-in-range?</code> を生成時に呼び直した結果 —— advisor の自己申告ではない。校正は 60 日間隔（<code>registry/detection-equipment-calibration-overdue?</code>）。衛生スコアと重量分散のしきい値は Governor が呼び出し側のリテラル引数として持っており読み取れる var が無いため、<code>governor/check</code> を境界まで走査して実測した —— 衛生スコア最低 <span class="num">75</span>、重量分散最大 <span class="num">50</span> g。この 2 列の OK/NG も定数比較ではなく <code>governor/check</code> の実回答。</p>
     <table>
       <thead><tr><th>バッチ</th><th>水分 %</th><th>純度 %</th><th>粒度 μm</th><th>SO2 ppm</th><th>微生物 CFU/g</th><th>衛生スコア</th><th>重量分散 g</th><th>異物</th><th>校正経過</th><th>必要書類</th></tr></thead>
       <tbody>
