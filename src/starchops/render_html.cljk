@@ -15,7 +15,7 @@
   1. `starchops.store` ships NO seed/demo data -- it is a pure-function
      surface over a plain `{:batches {} :facts []}` value, and
      `starchops.sim` is still a stub that prints \"not yet implemented\"
-     (`clojure -M:dev:run`, confirmed). So the seed had to be authored
+     (`kbb -M:dev:run`, confirmed). So the seed had to be authored
      here. To keep it traceable rather than invented, every product-type,
      jurisdiction, raw-material id and evidence-checklist item in
      `seed-batches` below is an id that already exists in
@@ -53,7 +53,7 @@
   shown instead, and the offsets are far from the 60-day boundary so the
   verdict is stable. Two consecutive runs are byte-identical.
 
-  Usage: `clojure -M:dev:render-html [out-file]`
+  Usage: `kbb -M:dev:render-html [out-file]`
   (default `docs/samples/operator-console.html`)."
   (:require [kotoba.lang.text :as str]
             [jp-go-dds.skin]
@@ -743,7 +743,7 @@
 
      (section
       "この頁の出自"
-      (str "<code>clojure -M:dev:render-html</code> が実 actor "
+      (str "<code>kbb -M:dev:render-html</code> が実 actor "
            "(<code>starchops.operation/run-operation</code> &rarr; "
            "<code>starchops.governor/check</code> &rarr; <code>starchops.store</code>) "
            "を実行し、その台帳と store をそのまま描いたもの。数値・rule 名・"
@@ -854,7 +854,7 @@
      "</main>\n"
      "<footer>\n"
      "  <p>cloud-itonami-isic-1062 · でん粉・でん粉製品製造 coordination actor · "
-     "生成: <code>clojure -M:dev:render-html</code> · "
+     "生成: <code>kbb -M:dev:render-html</code> · "
      "この頁は決定論的で、同じ seed に対して再実行するとバイト一致する。</p>\n"
      "</footer>\n"
      "</body></html>\n")))
