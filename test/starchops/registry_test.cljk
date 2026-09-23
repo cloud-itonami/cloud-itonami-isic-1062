@@ -1,5 +1,5 @@
 (ns starchops.registry-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [starchops.registry :as registry]))
 
 ;; ──────────────────────── Moisture Target ──────────────────────

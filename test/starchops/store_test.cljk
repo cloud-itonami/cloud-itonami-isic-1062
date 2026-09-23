@@ -1,5 +1,5 @@
 (ns starchops.store-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [starchops.store :as store]))
 
 ;; ──────────────────────── Batch Retrieval ──────────────────────

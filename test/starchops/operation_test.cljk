@@ -1,5 +1,5 @@
 (ns starchops.operation-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [starchops.operation :as operation]
             [starchops.governor :as governor]))
 
