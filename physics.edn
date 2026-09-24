@@ -1,0 +1,20 @@
+{:physics/schema "itonami.physical-ai.spec.v1"
+ :repo "cloud-itonami/cloud-itonami-isic-1062"
+ :cases
+ [{:id :starch-milk-to-hydrocyclones
+   :kind :pipe-flow
+   :procedure "pump feeds starch milk from the separator to the hydrocyclone battery through a 100 mm line"
+   :params {:diameter-m 0.10 :length-m 60.0 :roughness-m 1.5e-6
+            :density-kg-m3 1150.0 :viscosity-pa-s 3.0e-3 :pump-efficiency 0.6 :elevation-m 5.0}
+   :sweep {:param :q-m3s :values [0.01 0.02 0.03 0.04 0.05]}
+   :quantity :pressure-drop-pa
+   :limit {:max 1.5e5 :basis "estimate: line loss must stay under ~1.5 bar so the pump still delivers the hydrocyclones' feed pressure"}
+   :boundary {:lo 0.002 :hi 0.2}}
+  {:id :steep-tank-drain
+   :kind :tank-drain
+   :procedure "robot opens the bottom valve of a 5 m steeping tank to drain the steep water after the steep"
+   :params {:tank-area-m2 19.6 :h0-m 8.0 :h-target-m 0.5 :cd 0.62 :dt-s 1.0}
+   :sweep {:param :orifice-area-m2 :values [0.005 0.010 0.020 0.030 0.040]}
+   :quantity :time-to-target-s
+   :limit {:max 3600.0 :basis "estimate: steep water must be drained within 1 h so the grain can be moved on schedule"}
+   :boundary {:lo 0.002 :hi 0.08}}]}
